@@ -23,11 +23,14 @@ const eventSchema = new Schema({
   }
 })
 
-interface IEvent {
+interface IEventInput {
   title: string
   description: string
   price: number
   date: string
+}
+interface IEvent extends IEventInput {
+  _id: string
 }
 
 module.exports = mongoose.model('Event', eventSchema)
