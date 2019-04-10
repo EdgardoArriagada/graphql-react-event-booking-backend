@@ -26,7 +26,15 @@ app.use(
         mutation: RootMutation
       }
     `),
-    rootValue: {}
+    rootValue: {
+      events: () => {
+        return ['Romantic Cooking', 'Sailing', 'All-Night Coding']
+      },
+      createEvent: (args: { name: string }) => {
+        const eventName = args.name
+        return eventName
+      }
+    }
   })
 )
 
