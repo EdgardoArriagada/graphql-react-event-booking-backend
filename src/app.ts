@@ -5,7 +5,9 @@ const app = express()
 
 app.set('port', 3000)
 
-app.get('/', (req, res) => {
+app.use(bodyParser.json())
+
+app.get('/', ({ res }) => {
   const message: string = 'Hello World@'
   res.send(message)
 })
