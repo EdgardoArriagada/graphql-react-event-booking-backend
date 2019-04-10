@@ -10,7 +10,10 @@
   },
   "author": "",
   "license": "ISC",
-  "dependencies": {},
+  "dependencies": {
+    "express-graphql": "^0.7.1",
+    "graphql": "^14.2.1"
+  },
   "devDependencies": {
     "@types/express": "^4.16.1",
     "concurrently": "^4.1.0",
