@@ -34,7 +34,8 @@ app.use(
         const eventName = args.name
         return eventName
       }
-    }
+    },
+    graphiql: true
   })
 )
 
