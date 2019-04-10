@@ -5,6 +5,16 @@ const { buildSchema } = require('graphql')
 
 const app = express()
 
+interface Event {
+  _id: string
+  title: string
+  description: string
+  price: number
+  date: string
+}
+
+const events: Array<Event> = []
+
 app.set('port', 3000)
 
 app.use(bodyParser.json())
