@@ -12,7 +12,8 @@
   "license": "ISC",
   "dependencies": {
     "express-graphql": "^0.7.1",
-    "graphql": "^14.2.1"
+    "graphql": "^14.2.1",
+    "mongoose": "^5.5.0"
   },
   "devDependencies": {
     "@types/express": "^4.16.1",

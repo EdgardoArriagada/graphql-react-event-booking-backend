@@ -2,18 +2,11 @@ import express = require('express')
 const bodyParser = require('body-parser')
 const graphqlHttp = require('express-graphql')
 const { buildSchema } = require('graphql')
+const mongoose = require('mongoose')
+
+const Event = require('./models/event')
 
 const app = express()
-
-interface Event {
-  _id: string
-  title: string
-  description: string
-  price: number
-  date: string
-}
-
-const events: Array<Event> = []
 
 app.set('port', 3000)
 
@@ -53,23 +46,45 @@ app.use(
     `),
     rootValue: {
       events: () => {
-        return events
+        return Event.find()
+          .then((events: any) => {
+            return events.map((event: { _doc: IEvent }) => {
+              return { ...event._doc }
+            })
+          })
+          .catch((error: any) => {
+            throw error
+          })
       },
-      createEvent: (args: { eventInput: Event }) => {
-        const { title, description, price, date } = args.eventInput
-        const event = {
-          _id: Math.random().toString(),
-          title,
-          description,
-          price,
-          date
-        }
-        events.push(event)
-        return event
+      createEvent: (args: { eventInput: IEventInput }) => {
+        return new Event({ ...args.eventInput })
+          .save()
+          .then((result: any) => {
+            console.log(result)
+            return { ...result._doc }
+          })
+          .catch((error: any) => {
+            console.log(error)
+            throw error
+          })
       }
     },
     graphiql: true
   })
 )
+
+mongoose
+  .connect(
+    `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0-ddaar.mongodb.net/${
+      process.env.MONGO_DB
+    }?retryWrites=true`,
+    { useNewUrlParser: true }
+  )
+  .then(() => {
+    console.log('MongoDB Conection SUCCESS')
+  })
+  .catch((error: any) => {
+    console.log(error)
+  })
 
 export default app
