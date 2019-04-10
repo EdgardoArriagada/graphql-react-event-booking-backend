@@ -53,11 +53,19 @@ app.use(
     `),
     rootValue: {
       events: () => {
-        return ['Romantic Cooking', 'Sailing', 'All-Night Coding']
+        return events
       },
-      createEvent: (args: { name: string }) => {
-        const eventName = args.name
-        return eventName
+      createEvent: (args: { eventInput: Event }) => {
+        const { title, description, price, date } = args.eventInput
+        const event = {
+          _id: Math.random().toString(),
+          title,
+          description,
+          price,
+          date
+        }
+        events.push(event)
+        return event
       }
     },
     graphiql: true
