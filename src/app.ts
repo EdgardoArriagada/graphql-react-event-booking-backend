@@ -76,12 +76,39 @@ app.use(
       createEvent: (args: { eventInput: IEventInput }) => {
         return new Event({ ...args.eventInput })
           .save()
-          .then((result: any) => {
-            console.log(result)
-            return { ...result._doc }
-          })
+          .then(
+            (result: { _doc: IEvent }): IEvent => {
+              return { ...result._doc }
+            }
+          )
           .catch((error: any) => {
-            console.log(error)
+            throw error
+          })
+      },
+      createUser: (args: { userInput: IUserInput }) => {
+        const { email } = args.userInput
+        return User.findOne({ email })
+          .then((user: IUser) => {
+            if (user) {
+              throw new Error('User exists already')
+            }
+            return bcrypt.hash(args.userInput.password, 12)
+          })
+
+          .then((hashPassword: string) => {
+            const user = new User({
+              email: args.userInput.email,
+              password: hashPassword
+            })
+
+            return user.save()
+          })
+          .then(
+            (result: { _doc: IUser }): IUser => {
+              return { ...result._doc, password: null }
+            }
+          )
+          .catch((error: any) => {
             throw error
           })
       }
