@@ -1,3 +1,5 @@
+export {} // hack to fix TSlint
+
 const mongoose = require('mongoose')
 
 const Schema = mongoose.Schema
@@ -20,17 +22,11 @@ const eventSchema = new Schema({
   date: {
     type: Date,
     required
+  },
+  creator: {
+    type: Schema.Types.ObjectId,
+    ref: 'User'
   }
 })
-
-interface IEventInput {
-  title: string
-  description: string
-  price: number
-  date: string
-}
-interface IEvent extends IEventInput {
-  _id: string
-}
 
 module.exports = mongoose.model('Event', eventSchema)
