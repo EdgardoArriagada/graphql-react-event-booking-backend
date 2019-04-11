@@ -1,10 +1,11 @@
-const mongoose = require('mongoose')
+export {} // hack to fix TSlint
+import { Schema } from 'mongoose'
 
-const Schema = mongoose.Schema
+const mongoose = require('mongoose')
 
 const required = true // syntaxt helper
 
-const eventSchema = new Schema({
+const eventSchema: Schema = new mongoose.Schema({
   title: {
     type: String,
     required
@@ -20,17 +21,11 @@ const eventSchema = new Schema({
   date: {
     type: Date,
     required
+  },
+  creator: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
   }
 })
-
-interface IEventInput {
-  title: string
-  description: string
-  price: number
-  date: string
-}
-interface IEvent extends IEventInput {
-  _id: string
-}
 
 module.exports = mongoose.model('Event', eventSchema)

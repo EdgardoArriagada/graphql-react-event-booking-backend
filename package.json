@@ -11,6 +11,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@types/mongoose": "^5.3.26",
+    "bcryptjs": "^2.4.3",
     "express-graphql": "^0.7.1",
     "graphql": "^14.2.1",
     "mongoose": "^5.5.0"
