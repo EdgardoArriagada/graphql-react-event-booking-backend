@@ -1,8 +1,15 @@
+import { Document } from 'mongoose'
+
 export interface IUserInput {
   email: string
   password?: string
 }
-export interface IUser extends IUserInput {
-  createdEvents: Array<string>
+
+interface IUser extends IUserInput {
   _id: string
+  createdEvents: Array<string>
+}
+
+export interface IUserDocument extends IUserInput, Document {
+  _doc: IUser
 }
