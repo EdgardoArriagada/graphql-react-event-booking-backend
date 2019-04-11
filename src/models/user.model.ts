@@ -1,12 +1,11 @@
 export {} // hack to fix TSlint
+import { Schema } from 'mongoose'
 
 const mongoose = require('mongoose')
 
-const Schema = mongoose.Schema
-
 const required = true // syntaxt helper
 
-const userSchema = new Schema({
+const userSchema: Schema = new mongoose.Schema({
   email: {
     type: String,
     required
@@ -17,7 +16,7 @@ const userSchema = new Schema({
   },
   createdEvents: [
     {
-      type: Schema.Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: 'Event'
     }
   ]
