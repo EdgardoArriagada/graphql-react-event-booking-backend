@@ -102,11 +102,11 @@ app.use(
       },
       createEvent: (args: { eventInput: IEventInput }) => {
         const event = new Event({ ...args.eventInput, creator: testUserID })
-        let createdEvent: IEventDocument
+        let createdEvent = {} as IEventDocument
         return event
           .save()
           .then((result: IEventDocument) => {
-            createdEvent = result
+            createdEvent._doc = { ...result._doc, creator: user.bind(this, result._doc.creator) }
             return User.findById(testUserID)
           })
           .then((user: IUserDocument) => {
