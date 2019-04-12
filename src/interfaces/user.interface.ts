@@ -6,10 +6,10 @@ export interface IUserInput {
 }
 
 interface IUser extends IUserInput {
-  _id: string
+  _id: Document['_id']
   createdEvents: Array<string>
 }
 
-export interface IUserDocument extends IUserInput, Document {
+export interface IUserDocument extends IUser, Document {
   _doc: IUser
 }
