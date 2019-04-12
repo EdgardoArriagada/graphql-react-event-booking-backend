@@ -20,6 +20,28 @@ app.set('port', 3000)
 
 app.use(bodyParser.json())
 
+const events = (eventsIds: IEventDocument['_id']): Promise<IEventDocument['_doc'][]> => {
+  return Event.find({ _id: { $in: eventsIds } })
+    .then((events: Array<IEventDocument>) => {
+      return events.map((event: IEventDocument) => {
+        return { ...event._doc, creator: user.bind(this, event.creator) }
+      })
+    })
+    .catch((error: any) => {
+      throw error
+    })
+}
+
+const user = (userId: IUserDocument['_id']): Promise<IUserDocument['_doc']> => {
+  return User.findById(userId)
+    .then((user: IUserDocument) => {
+      return { ...user._doc, createdEvents: events.bind(this, user._doc.createdEvents) }
+    })
+    .catch((error: any) => {
+      throw error
+    })
+}
+
 app.use(
   '/graphql',
   graphqlHttp({
@@ -30,12 +52,14 @@ app.use(
         description: String!
         price: Float!
         date: String!
+        creator: User!
       }
 
       type User {
         _id: ID!
         email: String!
         password: String
+        createdEvents: [Event!]
       }
 
       input EventInput {
@@ -67,9 +91,9 @@ app.use(
     rootValue: {
       events: () => {
         return Event.find()
-          .then((events: any) => {
-            return events.map((event: { _doc: IEventDocument }) => {
-              return { ...event._doc }
+          .then((events: Array<IEventDocument>) => {
+            return events.map((event: IEventDocument) => {
+              return { ...event._doc, creator: user.bind(this, event.creator) }
             })
           })
           .catch((error: any) => {
@@ -78,11 +102,11 @@ app.use(
       },
       createEvent: (args: { eventInput: IEventInput }) => {
         const event = new Event({ ...args.eventInput, creator: testUserID })
-        let createdEvent: IEventDocument
+        let createdEvent = {} as IEventDocument
         return event
           .save()
           .then((result: IEventDocument) => {
-            createdEvent = result
+            createdEvent._doc = { ...result._doc, creator: user.bind(this, result._doc.creator) }
             return User.findById(testUserID)
           })
           .then((user: IUserDocument) => {
