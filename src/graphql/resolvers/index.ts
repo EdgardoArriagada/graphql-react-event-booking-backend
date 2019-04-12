@@ -8,11 +8,36 @@ const bcrypt = require('bcryptjs')
 const Event: Model<IEventDocument> = require('./../../models/event.model')
 const User: Model<IUserDocument> = require('./../../models/user.model')
 
-const testUserID = '5caf9283fed8654707ebef4e'
+const testUserID = '5cb124f0c944961bb23937eb'
 
-const events = (eventsIds: IEventDocument['_id']): Promise<IEventDocument['_doc'][]> => {
-  return Event.find({ _id: { $in: eventsIds } })
-    .then((events: Array<IEventDocument>) => {
+const events = async (eventsIds: IEventDocument['_id']): Promise<IEventDocument['_doc'][]> => {
+  try {
+    const events: Array<IEventDocument> = await Event.find({ _id: { $in: eventsIds } })
+    return events.map((event: IEventDocument) => {
+      return {
+        ...event._doc,
+        date: new Date(event._doc.date).toISOString(),
+        creator: user.bind(this, event.creator)
+      }
+    })
+  } catch (e) {
+    throw e
+  }
+}
+
+const user = async (userId: IUserDocument['_id']): Promise<IUserDocument['_doc']> => {
+  try {
+    const user: IUserDocument = await User.findById(userId)
+    return { ...user._doc, createdEvents: events.bind(this, user._doc.createdEvents) }
+  } catch (e) {
+    throw e
+  }
+}
+
+module.exports = {
+  events: async () => {
+    try {
+      const events: Array<IEventDocument> = await Event.find()
       return events.map((event: IEventDocument) => {
         return {
           ...event._doc,
@@ -20,92 +45,53 @@ const events = (eventsIds: IEventDocument['_id']): Promise<IEventDocument['_doc'
           creator: user.bind(this, event.creator)
         }
       })
-    })
-    .catch((error: any) => {
-      throw error
-    })
-}
-
-const user = (userId: IUserDocument['_id']): Promise<IUserDocument['_doc']> => {
-  return User.findById(userId)
-    .then((user: IUserDocument) => {
-      return { ...user._doc, createdEvents: events.bind(this, user._doc.createdEvents) }
-    })
-    .catch((error: any) => {
-      throw error
-    })
-}
-
-module.exports = {
-  events: () => {
-    return Event.find()
-      .then((events: Array<IEventDocument>) => {
-        return events.map((event: IEventDocument) => {
-          return {
-            ...event._doc,
-            date: new Date(event._doc.date).toISOString(),
-            creator: user.bind(this, event.creator)
-          }
-        })
-      })
-      .catch((error: any) => {
-        throw error
-      })
+    } catch (e) {
+      throw e
+    }
   },
-  createEvent: (args: { eventInput: IEventInput }) => {
-    const event = new Event({ ...args.eventInput, creator: testUserID })
-    let createdEvent = {} as IEventDocument
-    return event
-      .save()
-      .then((result: IEventDocument) => {
-        createdEvent._doc = {
-          ...result._doc,
-          date: new Date(event._doc.date).toISOString(),
-          creator: user.bind(this, result._doc.creator)
-        }
-        return User.findById(testUserID)
-      })
-      .then((user: IUserDocument) => {
-        if (!user) {
-          throw new Error('User not found')
-        }
-        user._doc.createdEvents.push(event.id)
-        return user.save()
-      })
-      .then(
-        (): IEventInput => {
-          return createdEvent._doc
-        }
-      )
-      .catch((error: any) => {
-        throw error
-      })
-  },
-  createUser: (args: { userInput: IUserInput }) => {
-    const { email } = args.userInput
-    return User.findOne({ email })
-      .then((user: IUserDocument) => {
-        if (user) {
-          throw new Error('User exists already')
-        }
-        return bcrypt.hash(args.userInput.password, 12)
-      })
-      .then((hashPassword: string) => {
-        const user = new User({
-          email: args.userInput.email,
-          password: hashPassword
-        })
+  createEvent: async (args: { eventInput: IEventInput }) => {
+    try {
+      const event = new Event({ ...args.eventInput, creator: testUserID })
+      let createdEvent = {} as IEventDocument
+      const result = await event.save()
+      createdEvent._doc = {
+        ...result._doc,
+        date: new Date(event._doc.date).toISOString(),
+        creator: user.bind(this, result._doc.creator)
+      }
+      const userCreator = await User.findById(testUserID)
+      if (!userCreator) {
+        throw new Error('User not found')
+      }
+      userCreator._doc.createdEvents.push(event.id)
+      await userCreator.save()
 
-        return user.save()
+      return createdEvent._doc
+    } catch (e) {
+      throw e
+    }
+  },
+  createUser: async (args: { userInput: IUserInput }): Promise<IUserDocument['_doc']> => {
+    try {
+      const { email } = args.userInput
+      const existingUser: IUserDocument = await User.findOne({ email })
+      if (existingUser) {
+        throw new Error('User exists already')
+      }
+      const hashPassword: string = await bcrypt.hash(args.userInput.password, 12)
+      const newUser: IUserDocument = new User({
+        email: args.userInput.email,
+        password: hashPassword
       })
-      .then((result: IUserDocument) => {
-        return {
-          email: result.email,
-          password: null
-        }
-      })
-      .catch((error: any) => {
-        throw error
-      })
+      const result: IUserDocument = await newUser.save()
+      return {
+        _id: result.id,
+        email: result.email,
+        password: null,
+        createdEvents: null
+      }
+    } catch (e) {
+      throw e
+    }
   }
 }
