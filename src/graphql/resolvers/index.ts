@@ -14,7 +14,11 @@ const events = (eventsIds: IEventDocument['_id']): Promise<IEventDocument['_doc'
   return Event.find({ _id: { $in: eventsIds } })
     .then((events: Array<IEventDocument>) => {
       return events.map((event: IEventDocument) => {
-        return { ...event._doc, creator: user.bind(this, event.creator) }
+        return {
+          ...event._doc,
+          date: new Date(event._doc.date).toISOString(),
+          creator: user.bind(this, event.creator)
+        }
       })
     })
     .catch((error: any) => {
@@ -37,7 +41,11 @@ module.exports = {
     return Event.find()
       .then((events: Array<IEventDocument>) => {
         return events.map((event: IEventDocument) => {
-          return { ...event._doc, creator: user.bind(this, event.creator) }
+          return {
+            ...event._doc,
+            date: new Date(event._doc.date).toISOString(),
+            creator: user.bind(this, event.creator)
+          }
         })
       })
       .catch((error: any) => {
@@ -50,7 +58,11 @@ module.exports = {
     return event
       .save()
       .then((result: IEventDocument) => {
-        createdEvent._doc = { ...result._doc, creator: user.bind(this, result._doc.creator) }
+        createdEvent._doc = {
+          ...result._doc,
+          date: new Date(event._doc.date).toISOString(),
+          creator: user.bind(this, result._doc.creator)
+        }
         return User.findById(testUserID)
       })
       .then((user: IUserDocument) => {
@@ -87,7 +99,10 @@ module.exports = {
         return user.save()
       })
       .then((result: IUserDocument) => {
-        return { email: result.email, password: null }
+        return {
+          email: result.email,
+          password: null
+        }
       })
       .catch((error: any) => {
         throw error
