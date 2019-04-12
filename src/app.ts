@@ -91,9 +91,9 @@ app.use(
     rootValue: {
       events: () => {
         return Event.find()
-          .then((events: any) => {
-            return events.map((event: { _doc: IEventDocument }) => {
-              return { ...event._doc }
+          .then((events: Array<IEventDocument>) => {
+            return events.map((event: IEventDocument) => {
+              return { ...event._doc, creator: user.bind(this, event.creator) }
             })
           })
           .catch((error: any) => {
