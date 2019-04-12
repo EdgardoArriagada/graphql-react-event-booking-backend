@@ -20,6 +20,28 @@ app.set('port', 3000)
 
 app.use(bodyParser.json())
 
+const events = (eventsIds: IEventDocument['_id']): Promise<IEventDocument['_doc'][]> => {
+  return Event.find({ _id: { $in: eventsIds } })
+    .then((events: Array<IEventDocument>) => {
+      return events.map((event: IEventDocument) => {
+        return { ...event._doc, creator: user.bind(this, event.creator) }
+      })
+    })
+    .catch((error: any) => {
+      throw error
+    })
+}
+
+const user = (userId: IUserDocument['_id']): Promise<IUserDocument['_doc']> => {
+  return User.findById(userId)
+    .then((user: IUserDocument) => {
+      return { ...user._doc, createdEvents: events.bind(this, user._doc.createdEvents) }
+    })
+    .catch((error: any) => {
+      throw error
+    })
+}
+
 app.use(
   '/graphql',
   graphqlHttp({
