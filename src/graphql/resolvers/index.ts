@@ -1,9 +1,9 @@
 export {} // hack to fix TSlint
 import { Model } from 'mongoose'
-import { IEventDocument, IEventInput } from './../../interfaces/event.interface'
-import { IUserDocument, IUserInput } from './../../interfaces/user.interface'
-import { IBookingDocument } from './../../interfaces/booking.interface'
-import { userInfo } from 'os'
+import { IEventDocument, IEventInput } from '../../interfaces/event.interface'
+import { IUserDocument, IUserInput } from '../../interfaces/user.interface'
+import { IBookingDocument } from '../../interfaces/booking.interface'
+import { dateToString } from '../../helpers/date'
 
 const bcrypt = require('bcryptjs')
 
@@ -13,15 +13,29 @@ const Booking: Model<IBookingDocument> = require('./../../models/booking.model')
 
 const testUserID = '5cb124f0c944961bb23937eb'
 
+const standarizeEvent = (event: IEventDocument): IEventDocument['_doc'] => {
+  return {
+    ...event._doc,
+    date: dateToString(event._doc.date),
+    creator: fetchUser.bind(this, event.creator)
+  }
+}
+
+const standarizeBooking = (booking: IBookingDocument): IBookingDocument['_doc'] => {
+  return {
+    ...booking._doc,
+    user: fetchUser.bind(this, booking._doc.user),
+    event: fetchEvent.bind(this, booking._doc.event),
+    createdAt: dateToString(booking._doc.createdAt),
+    updatedAt: dateToString(booking._doc.updatedAt)
+  }
+}
+
 const fetchEvents = async (eventsIds: IEventDocument['_id'][]): Promise<IEventDocument['_doc'][]> => {
   try {
     const events: Array<IEventDocument> = await Event.find({ _id: { $in: eventsIds } })
     return events.map((event: IEventDocument) => {
-      return {
-        ...event._doc,
-        date: new Date(event._doc.date).toISOString(),
-        creator: fetchUser.bind(this, event.creator)
-      }
+      return standarizeEvent(event)
     })
   } catch (e) {
     throw e
@@ -31,7 +45,7 @@ const fetchEvents = async (eventsIds: IEventDocument['_id'][]): Promise<IEventDo
 const fetchEvent = async (eventId: IEventDocument['_id']): Promise<IEventDocument['_doc']> => {
   try {
     const event: IEventDocument = await Event.findById(eventId)
-    return { ...event._doc, creator: fetchUser.bind(this, event.creator) }
+    return standarizeEvent(event)
   } catch (e) {
     throw e
   }
@@ -52,11 +66,7 @@ module.exports = {
       const events: Array<IEventDocument> = await Event.find()
       return events.map(
         (event: IEventDocument): IEventDocument['_doc'] => {
-          return {
-            ...event._doc,
-            date: new Date(event._doc.date).toISOString(),
-            creator: fetchUser.bind(this, event.creator)
-          }
+          return standarizeEvent(event)
         }
       )
     } catch (e) {
@@ -68,13 +78,7 @@ module.exports = {
       const bookings = await Booking.find()
       return bookings.map(
         (booking: IBookingDocument): IBookingDocument['_doc'] => {
-          return {
-            ...booking._doc,
-            user: fetchUser.bind(this, booking._doc.user),
-            event: fetchEvent.bind(this, booking._doc.event),
-            createdAt: new Date(booking._doc.createdAt).toISOString(),
-            updatedAt: new Date(booking._doc.updatedAt).toISOString()
-          }
+          return standarizeBooking(booking)
         }
       )
     } catch (e) {
@@ -84,13 +88,8 @@ module.exports = {
   createEvent: async (args: { eventInput: IEventInput }): Promise<IEventDocument['_doc']> => {
     try {
       const event = new Event({ ...args.eventInput, creator: testUserID })
-      let createdEvent = {} as IEventDocument
       const result = await event.save()
-      createdEvent._doc = {
-        ...result._doc,
-        date: new Date(event._doc.date).toISOString(),
-        creator: fetchUser.bind(this, result._doc.creator)
-      }
+      const createdEvent: IEventDocument['_doc'] = standarizeEvent(result)
       const userCreator = await User.findById(testUserID)
       if (!userCreator) {
         throw new Error('User not found')
@@ -98,7 +97,7 @@ module.exports = {
       userCreator._doc.createdEvents.push(event.id)
       await userCreator.save()
 
-      return createdEvent._doc
+      return createdEvent
     } catch (e) {
       throw e
     }
@@ -131,24 +130,15 @@ module.exports = {
       const fetchedEvent: IEventDocument = await Event.findOne({ _id: args.eventId })
       const booking = new Booking({ user: testUserID, event: fetchedEvent._doc._id })
       const result = await booking.save()
-      return {
-        _id: result._doc._id,
-        user: fetchUser.bind(this, booking._doc.user),
-        event: fetchEvent.bind(this, booking._doc.event),
-        createdAt: new Date(result._doc.createdAt).toISOString(),
-        updatedAt: new Date(result._doc.updatedAt).toISOString()
-      }
+      return standarizeBooking(result)
     } catch (e) {
       throw e
     }
   },
-  cancelBooking: async (args: { bookingId: IBookingDocument['_id'] }): Promise<IBookingDocument['_doc']> => {
+  cancelBooking: async (args: { bookingId: IBookingDocument['_id'] }): Promise<IEventDocument['_doc']> => {
     try {
       const booking = await Booking.findById(args.bookingId).populate('event')
-      const event: IBookingDocument = {
-        ...booking.event._doc,
-        creator: fetchUser.bind(this, booking.event._doc.creator)
-      }
+      const event: IEventDocument['_doc'] = standarizeEvent(booking.event)
       await Booking.deleteOne({ _id: args.bookingId })
       return event
     } catch (e) {
