@@ -9,13 +9,13 @@ app.set('port', 3000)
 app.use(bodyParser.json())
 
 const graphqlSchema = require('./graphql/schema/index')
-const graphqlResolvers = require('./graphql/resolvers/index')
+import { rootResolver } from './graphql/resolvers/index'
 
 app.use(
   '/graphql',
   graphqlHttp({
     schema: graphqlSchema,
-    rootValue: graphqlResolvers,
+    rootValue: rootResolver,
     graphiql: true
   })
 )

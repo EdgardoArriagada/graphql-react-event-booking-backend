@@ -1,5 +1,6 @@
 export {} // hack to fix TSlint
-import { Schema } from 'mongoose'
+import { Schema, Model } from 'mongoose'
+import { IUserDocument } from '../interfaces/user.interface'
 
 const mongoose = require('mongoose')
 
@@ -22,4 +23,4 @@ const userSchema: Schema = new mongoose.Schema({
   ]
 })
 
-module.exports = mongoose.model('User', userSchema)
+export const User: Model<IUserDocument> = mongoose.model('User', userSchema)

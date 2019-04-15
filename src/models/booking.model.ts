@@ -1,5 +1,6 @@
 export {} // hack to fix TSlint
-import { Schema } from 'mongoose'
+import { Schema, Model } from 'mongoose'
+import { IBookingDocument } from '../interfaces/booking.interface'
 
 const mongoose = require('mongoose')
 
@@ -21,4 +22,4 @@ const bookingSchema: Schema = new mongoose.Schema(
   { timestamps: true }
 )
 
-module.exports = mongoose.model('Booking', bookingSchema)
+export const Booking: Model<IBookingDocument> = mongoose.model('Booking', bookingSchema)
