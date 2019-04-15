@@ -1,10 +1,7 @@
-import { Model } from 'mongoose'
 import { IEventDocument, IEventInput } from '../../interfaces/event.interface'
 import { standarizeEvent } from './utils'
-import { IUserDocument } from '../../interfaces/user.interface'
-
-const Event: Model<IEventDocument> = require('./../../models/event.model')
-const User: Model<IUserDocument> = require('./../../models/user.model')
+import { User } from '../../models/user.model'
+import { Event } from '../../models/event.model'
 
 const testUserID = '5cb124f0c944961bb23937eb'
 

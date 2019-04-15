@@ -1,5 +1,6 @@
 export {} // hack to fix TSlint
-import { Schema } from 'mongoose'
+import { Schema, Model } from 'mongoose'
+import { IEventDocument } from '../interfaces/event.interface'
 
 const mongoose = require('mongoose')
 
@@ -28,4 +29,4 @@ const eventSchema: Schema = new mongoose.Schema({
   }
 })
 
-module.exports = mongoose.model('Event', eventSchema)
+export const Event: Model<IEventDocument> = mongoose.model('Event', eventSchema)

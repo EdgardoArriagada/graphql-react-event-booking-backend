@@ -1,11 +1,9 @@
 export {} // hack to fix TSlint
-import { Model } from 'mongoose'
 import { IEventDocument } from '../../interfaces/event.interface'
 import { IBookingDocument } from '../../interfaces/booking.interface'
 import { standarizeBooking, standarizeEvent } from './utils'
-
-const Booking: Model<IBookingDocument> = require('./../../models/booking.model')
-const Event: Model<IEventDocument> = require('./../../models/event.model')
+import { Booking } from '../../models/booking.model'
+import { Event } from '../../models/event.model'
 
 const testUserID = '5cb124f0c944961bb23937eb'
 

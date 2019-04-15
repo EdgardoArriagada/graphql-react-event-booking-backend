@@ -1,11 +1,10 @@
 import { IUserDocument } from '../../interfaces/user.interface'
 import { IEventDocument } from '../../interfaces/event.interface'
-import { Model } from 'mongoose'
 import { dateToString } from '../../helpers/date'
 import { IBookingDocument } from '../../interfaces/booking.interface'
+import { User } from '../../models/user.model'
+import { Event } from '../../models/event.model'
 
-const Event: Model<IEventDocument> = require('./../../models/event.model')
-const User: Model<IUserDocument> = require('./../../models/user.model')
 export const standarizeEvent = (event: IEventDocument): IEventDocument['_doc'] => {
   return {
     ...event._doc,
