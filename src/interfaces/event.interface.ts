@@ -1,17 +1,21 @@
 import { Document } from 'mongoose'
 import { IUserDocument } from './user.interface'
 
-export interface IEventInput {
+export interface IEvent {
+  _id: Document['_id']
   title: string
   description: string
   price: number
   date: string
-  creator: IUserDocument['_id']
+  creator: IUserDocument
 }
 
-interface IEvent extends IEventInput {
-  creator: IUserDocument
-  _id: Document['_id']
+export interface IEventInput {
+  title: IEvent['title']
+  description: IEvent['description']
+  price: IEvent['price']
+  date: IEvent['date']
+  creator: IUserDocument['_id']
 }
 
 export interface IEventDocument extends Document, IEvent {

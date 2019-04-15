@@ -1,13 +1,16 @@
 import { Document } from 'mongoose'
+import { IEvent } from './event.interface'
 
-export interface IUserInput {
+interface IUser {
+  _id: Document['_id']
   email: string
   password?: string
+  createdEvents: Array<IEvent>
 }
 
-interface IUser extends IUserInput {
-  _id: Document['_id']
-  createdEvents: Array<string>
+export interface IUserInput {
+  email: IUser['email']
+  password?: IUser['password']
 }
 
 export interface IUserDocument extends IUser, Document {
