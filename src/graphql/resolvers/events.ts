@@ -1,6 +1,6 @@
 import { Model } from 'mongoose'
 import { IEventDocument, IEventInput } from '../../interfaces/event.interface'
-import { standarizeEvent } from './merge'
+import { standarizeEvent } from './utils'
 import { IUserDocument } from '../../interfaces/user.interface'
 
 const Event: Model<IEventDocument> = require('./../../models/event.model')
