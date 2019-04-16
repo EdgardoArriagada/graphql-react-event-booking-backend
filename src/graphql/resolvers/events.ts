@@ -2,8 +2,7 @@ import { IEventDocument, IEventInput } from '../../interfaces/event.interface'
 import { standarizeEvent } from './utils'
 import { User } from '../../models/user.model'
 import { Event } from '../../models/event.model'
-
-const testUserID = '5cb124f0c944961bb23937eb'
+import { IAppRequest } from '../../middleware/is-auth.middleware'
 
 module.exports = {
   events: async (): Promise<IEventDocument['_doc'][]> => {
@@ -18,12 +17,15 @@ module.exports = {
       throw e
     }
   },
-  createEvent: async (args: { eventInput: IEventInput }): Promise<IEventDocument['_doc']> => {
+  createEvent: async (args: { eventInput: IEventInput }, req: IAppRequest): Promise<IEventDocument['_doc']> => {
+    if (!req.isAuth) {
+      throw new Error('Unauthenticated')
+    }
     try {
       const event = new Event({ ...args.eventInput, creator: testUserID })
       const result = await event.save()
       const createdEvent: IEventDocument['_doc'] = standarizeEvent(result)
-      const userCreator = await User.findById(testUserID)
+      const userCreator = await User.findById(req.userId)
       if (!userCreator) {
         throw new Error('User not found')
       }
