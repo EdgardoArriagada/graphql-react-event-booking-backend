@@ -2,7 +2,7 @@
 
 From an awesome [academind tutorial](https://www.youtube.com/watch?v=7giZGFDGnkc)
 
-This project is for me just to practice graphql
+I made this repo just to practice graphql
 
 **WARNING:** features typescrypt installation in express and a prettier configuration, these are not part of the academind tutorial
 
