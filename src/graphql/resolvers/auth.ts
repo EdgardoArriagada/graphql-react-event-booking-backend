@@ -1,10 +1,9 @@
 export {} // hack to fix TSlint
-import { Model } from 'mongoose'
-import { IUserDocument, IUserInput } from '../../interfaces/user.interface'
+import { IUserDocument, IUserInput, IAuthData } from '../../interfaces/user.interface'
+import { User } from '../../models/user.model'
+const jwt = require('jsonwebtoken')
 
 const bcrypt = require('bcryptjs')
-
-const User: Model<IUserDocument> = require('./../../models/user.model')
 
 module.exports = {
   createUser: async (args: { userInput: IUserInput }): Promise<IUserDocument['_doc']> => {
@@ -29,5 +28,20 @@ module.exports = {
     } catch (e) {
       throw e
     }
+  },
+  login: async ({ email, password }: IUserInput): Promise<IAuthData> => {
+    const user: IUserDocument = await User.findOne({ email })
+    if (!user) {
+      throw new Error('User does not exist!')
+    }
+
+    const isEqualPassword = await bcrypt.compare(password, user._doc.password)
+    if (!isEqualPassword) {
+      throw new Error('Password is incorrect!')
+    }
+    const token = await jwt.sign({ userId: user.id, email }, 'somesupersecretkey', {
+      expiresIn: '1h'
+    })
+    return { userId: user.id, token, tokenExpiration: 1 }
   }
 }
