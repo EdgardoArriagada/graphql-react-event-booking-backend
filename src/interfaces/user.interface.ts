@@ -13,6 +13,12 @@ export interface IUserInput {
   password?: IUser['password']
 }
 
+export interface IAuthData {
+  userId: string
+  token: string
+  tokenExpiration: number
+}
+
 export interface IUserDocument extends IUser, Document {
   _doc: IUser
 }
