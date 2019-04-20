@@ -22,7 +22,7 @@ module.exports = {
       throw new Error('Unauthenticated')
     }
     try {
-      const event = new Event({ ...args.eventInput, creator: testUserID })
+      const event = new Event({ ...args.eventInput, creator: req.userId })
       const result = await event.save()
       const createdEvent: IEventDocument['_doc'] = standarizeEvent(result)
       const userCreator = await User.findById(req.userId)
