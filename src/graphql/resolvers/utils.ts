@@ -5,21 +5,31 @@ import { IBookingDocument } from '../../interfaces/booking.interface'
 import { User } from '../../models/user.model'
 import { Event } from '../../models/event.model'
 
-export const standarizeEvent = (event: IEventDocument): IEventDocument['_doc'] => {
+export const standarizeEvent = ({
+  _id,
+  date,
+  price,
+  description,
+  title,
+  creator
+}: IEventDocument['_doc']): IEventDocument['_doc'] => {
   return {
-    ...event._doc,
-    date: dateToString(event._doc.date),
-    creator: fetchUser.bind(this, event.creator)
+    _id,
+    title,
+    description,
+    date: dateToString(date),
+    price,
+    creator: fetchUser.bind(this, creator)
   }
 }
 
-export const standarizeBooking = (booking: IBookingDocument): IBookingDocument['_doc'] => {
+export const standarizeBooking = (booking: IBookingDocument['_doc']): IBookingDocument['_doc'] => {
   return {
-    ...booking._doc,
-    user: fetchUser.bind(this, booking._doc.user),
-    event: fetchEvent.bind(this, booking._doc.event),
-    createdAt: dateToString(booking._doc.createdAt),
-    updatedAt: dateToString(booking._doc.updatedAt)
+    ...booking,
+    user: fetchUser.bind(this, booking.user),
+    event: fetchEvent.bind(this, booking.event),
+    createdAt: dateToString(booking.createdAt),
+    updatedAt: dateToString(booking.updatedAt)
   }
 }
 export const fetchEvents = async (eventsIds: IEventDocument['_id'][]): Promise<IEventDocument['_doc'][]> => {
@@ -44,8 +54,12 @@ export const fetchEvent = async (eventId: IEventDocument['_id']): Promise<IEvent
 
 export const fetchUser = async (userId: IUserDocument['_id']): Promise<IUserDocument['_doc']> => {
   try {
-    const user: IUserDocument = await User.findById(userId)
-    return { ...user._doc, createdEvents: fetchEvents.bind(this, user._doc.createdEvents) }
+    const user: IUserDocument['_doc'] = await User.findById(userId)
+    if (!user) {
+      throw new Error('User does not exists')
+    }
+    const { _id, createdEvents, email } = user
+    return { _id, email, createdEvents: fetchEvents.bind(this, createdEvents) }
   } catch (e) {
     throw e
   }
