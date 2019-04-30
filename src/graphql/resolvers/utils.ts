@@ -23,13 +23,19 @@ export const standarizeEvent = ({
   }
 }
 
-export const standarizeBooking = (booking: IBookingDocument['_doc']): IBookingDocument['_doc'] => {
+export const standarizeBooking = ({
+  _id,
+  user,
+  event,
+  createdAt,
+  updatedAt
+}: IBookingDocument['_doc']): IBookingDocument['_doc'] => {
   return {
-    ...booking,
-    user: fetchUser.bind(this, booking.user),
-    event: fetchEvent.bind(this, booking.event),
-    createdAt: dateToString(booking.createdAt),
-    updatedAt: dateToString(booking.updatedAt)
+    _id,
+    user: fetchUser.bind(this, user),
+    event: fetchEvent.bind(this, event),
+    createdAt: dateToString(createdAt),
+    updatedAt: dateToString(updatedAt)
   }
 }
 export const fetchEvents = async (eventsIds: IEventDocument['_id'][]): Promise<IEventDocument['_doc'][]> => {

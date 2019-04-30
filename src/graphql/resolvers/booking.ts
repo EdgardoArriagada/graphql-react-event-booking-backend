@@ -12,7 +12,7 @@ module.exports = {
       throw new Error('Unauthenticated')
     }
     try {
-      const bookings = await Booking.find()
+      const bookings: Array<IBookingDocument> = await Booking.find()
       return bookings.map(
         (booking: IBookingDocument): IBookingDocument['_doc'] => {
           return standarizeBooking(booking)
