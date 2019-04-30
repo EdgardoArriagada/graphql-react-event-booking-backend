@@ -7,7 +7,7 @@ import { Event } from '../../models/event.model'
 import { IAppRequest } from '../../middleware/is-auth.middleware'
 
 module.exports = {
-  bookings: async (req: IAppRequest): Promise<IBookingDocument['_doc'][]> => {
+  bookings: async (args: null, req: IAppRequest): Promise<IBookingDocument['_doc'][]> => {
     if (!req.isAuth) {
       throw new Error('Unauthenticated')
     }

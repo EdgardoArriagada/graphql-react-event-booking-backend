@@ -30,5 +30,5 @@ export const isAuth = (req: IAppRequest, res: Response, next: NextFunction) => {
   }
   req.isAuth = true
   req.userId = decodedToken.userId
-  next()
+  return next()
 }
