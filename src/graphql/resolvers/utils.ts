@@ -66,8 +66,8 @@ export const fetchEvents = async (eventsIds: IEventDocument['_id'][]): Promise<I
 
 export const fetchEvent = async (eventId: IEventDocument['_id']): Promise<IEventDocument['_doc']> => {
   try {
-    const event: IEventDocument = await Event.findById(eventId)
-    return standarizeEvent(event)
+    const event: IEventDocument = await eventsLoader.load(eventId.toString())
+    return event
   } catch (e) {
     throw e
   }
@@ -75,12 +75,12 @@ export const fetchEvent = async (eventId: IEventDocument['_id']): Promise<IEvent
 
 export const fetchUser = async (userId: IUserDocument['_id']): Promise<IUserDocument['_doc']> => {
   try {
-    const user: IUserDocument['_doc'] = await User.findById(userId)
+    const user: IUserDocument['_doc'] = await usersLoader.load(userId.toString())
     if (!user) {
       throw new Error('User does not exists')
     }
     const { _id, createdEvents, email } = user
-    return { _id, email, createdEvents: fetchEvents.bind(this, createdEvents) }
+    return { _id, email, createdEvents: () => eventsLoader.loadMany(createdEvents) }
   } catch (e) {
     throw e
   }
