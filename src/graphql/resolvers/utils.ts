@@ -5,6 +5,21 @@ import { IBookingDocument } from '../../interfaces/booking.interface'
 import { User } from '../../models/user.model'
 import { Event } from '../../models/event.model'
 
+const DataLoader = require('dataloader')
+
+const eventsLoader = new DataLoader(
+  (eventsIds: Array<IEventDocument['_id']>): Promise<Array<IEventDocument['_doc']>> => {
+    return fetchEvents(eventsIds)
+  }
+)
+
+const usersLoader = new DataLoader(
+  async (usersIds: Array<IUserDocument['_id']>): Promise<Array<IUserDocument['_doc']>> => {
+    console.log(usersIds)
+    return await User.find({ _id: { $in: usersIds } })
+  }
+)
+
 export const standarizeEvent = ({
   _id,
   date,
