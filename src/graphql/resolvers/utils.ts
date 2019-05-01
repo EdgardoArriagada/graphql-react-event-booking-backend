@@ -4,6 +4,7 @@ import { dateToString } from '../../helpers/date'
 import { IBookingDocument } from '../../interfaces/booking.interface'
 import { User } from '../../models/user.model'
 import { Event } from '../../models/event.model'
+import { sortById } from '../../helpers/sortById'
 
 const DataLoader = require('dataloader')
 
@@ -15,8 +16,8 @@ const eventsLoader = new DataLoader(
 
 const usersLoader = new DataLoader(
   async (usersIds: Array<IUserDocument['_id']>): Promise<Array<IUserDocument['_doc']>> => {
-    console.log(usersIds)
-    return await User.find({ _id: { $in: usersIds } })
+    const user = await User.find({ _id: { $in: usersIds } })
+    return sortById(user, usersIds)
   }
 )
 
@@ -53,10 +54,11 @@ export const standarizeBooking = ({
     updatedAt: dateToString(updatedAt)
   }
 }
-export const fetchEvents = async (eventsIds: IEventDocument['_id'][]): Promise<IEventDocument['_doc'][]> => {
+export const fetchEvents = async (eventsIds: Array<IEventDocument['_id']>): Promise<Array<IEventDocument['_doc']>> => {
   try {
     const events: Array<IEventDocument> = await Event.find({ _id: { $in: eventsIds } })
-    return events.map((event: IEventDocument) => {
+
+    return sortById(events, eventsIds).map((event: IEventDocument) => {
       return standarizeEvent(event)
     })
   } catch (e) {
