@@ -7,12 +7,12 @@ import { Event } from '../../models/event.model'
 import { IAppRequest } from '../../middleware/is-auth.middleware'
 
 module.exports = {
-  bookings: async (req: IAppRequest): Promise<IBookingDocument['_doc'][]> => {
+  bookings: async (args: null, req: IAppRequest): Promise<IBookingDocument['_doc'][]> => {
     if (!req.isAuth) {
       throw new Error('Unauthenticated')
     }
     try {
-      const bookings = await Booking.find()
+      const bookings: Array<IBookingDocument> = await Booking.find()
       return bookings.map(
         (booking: IBookingDocument): IBookingDocument['_doc'] => {
           return standarizeBooking(booking)
