@@ -5,7 +5,7 @@ interface IUser {
   _id: Document['_id']
   email: string
   password?: string
-  createdEvents: Array<IEvent> | (() => Array<IEvent>)
+  createdEvents: Array<IEvent>
 }
 
 export interface IUserInput {
