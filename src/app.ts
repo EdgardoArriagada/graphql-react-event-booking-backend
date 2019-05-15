@@ -4,7 +4,7 @@ const bodyParser = require('body-parser')
 const graphqlHttp = require('express-graphql')
 const app = express()
 
-app.set('port', 3000)
+app.set('port', process.env.PORT || 3000)
 
 app.use(bodyParser.json())
 

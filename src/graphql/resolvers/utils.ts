@@ -75,7 +75,7 @@ export const fetchEvent = async (eventId: IEventDocument['_id']): Promise<IEvent
   }
 }
 
-export const fetchUser = async (userId: IUserDocument['_id']): Promise<IUserDocument['_doc']> => {
+export const fetchUser = async (userId: IUserDocument['_id']): Promise<any> => {
   try {
     const user: IUserDocument['_doc'] = await usersLoader.load(userId.toString())
     if (!user) {
