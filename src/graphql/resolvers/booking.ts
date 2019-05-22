@@ -44,9 +44,6 @@ module.exports = {
     }
     try {
       const booking = await Booking.findById(args.bookingId).populate('event')
-      if (req.userId !== booking.user) {
-        throw new Error('User not deleting its own booking')
-      }
       const event: IEventDocument['_doc'] = standarizeEvent(booking.event)
       await Booking.deleteOne({ _id: args.bookingId })
       return event
