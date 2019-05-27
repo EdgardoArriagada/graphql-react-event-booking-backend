@@ -48,7 +48,8 @@ module.exports = {
       if (req.userId.toString() !== eventToModify.creator._id.toString()) {
         throw new Error('User not modifing its own event')
       }
-      const modifiedEvent = await Event.updateOne({ _id }, { $set: { ...args.modifyEventInput } })
+      const result = await Event.findOneAndUpdate({ _id }, { $set: { ...args.modifyEventInput } }, { new: true })
+      const modifiedEvent: IEventDocument['_doc'] = standarizeEvent(result)
       return modifiedEvent
     } catch (e) {
       throw e
